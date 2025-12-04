@@ -1,0 +1,23 @@
+{
+"id": "f1d2-...",
+"name": "Insurance Lead Intake",
+"ownerUserId": "u123",
+"version": 1,
+"createdAt": "2025-09-02T09:30:00.000Z",
+"updatedAt": "2025-09-02T09:30:00.000Z",
+"fields": [
+{ "id": "fld-1", "key": "fullName", "label": "Full Name", "type": "text", "required": true,
+"validations": [{"name":"minLength","value":2,"message":"Name is too short"}] },
+{ "id": "fld-2", "key": "dob", "label": "Date of Birth", "type": "date", "min": -2208988800000 },
+{ "id": "fld-3", "key": "premium", "label": "Premium", "type": "number", "min": 0, "step": 1,
+"warnings": [{"name":"min","value":1000,"message":"Premium under ₹1000 may be rejected"}] },
+{ "id": "fld-4", "key": "product", "label": "Product", "type": "autocomplete",
+"options": [{"value":"term","label":"Term"},{"value":"ulip","label":"ULIP"},{"value":"motor","label":"Motor"}],
+"autocomplete": {"minChars": 1} },
+{ "id": "fld-5", "key": "variant", "label": "Variant", "type": "dropdown", "options": [
+{"value":"basic","label":"Basic"},{"value":"plus","label":"Plus"}
+],
+"conditional": {"dependsOnFieldId":"fld-4","operator":"equals","value":"motor"}
+}
+]
+}

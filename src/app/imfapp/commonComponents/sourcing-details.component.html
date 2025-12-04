@@ -1,0 +1,70 @@
+<form #f="ngForm" (ngSubmit)="onSubmit(f)" class="sourcing-details-form">
+  <div class="form-row">
+    <label for="fy">FY</label>
+    <input id="fy" name="fy" [(ngModel)]="model.Fy" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="year">Year</label>
+    <input id="year" name="year" [(ngModel)]="model.Year" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="loginMonth">Login Month</label>
+    <input id="loginMonth" name="loginMonth" [(ngModel)]="model.LoginMonth" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="premiumMonth">Premium Month</label>
+    <input id="premiumMonth" name="premiumMonth" [(ngModel)]="model.PremiumMonth" type="number" />
+  </div>
+  <div class="form-row">
+    <label for="location">Location</label>
+    <input id="location" name="location" [(ngModel)]="model.Location" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="department">Department</label>
+    <input id="department" name="department" [(ngModel)]="model.Department" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="insuranceHead">Insurance Head</label>
+    <input id="insuranceHead" name="insuranceHead" [(ngModel)]="model.InsuranceHead" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="businessHead">Business Head</label>
+    <input id="businessHead" name="businessHead" [(ngModel)]="model.BusinessHead" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="presentator">Presentator</label>
+    <input id="presentator" name="presentator" [(ngModel)]="model.Presentator" type="date" />
+  </div>
+  <div class="form-row">
+    <label for="businessPartner">Business Partner</label>
+    <input id="businessPartner" name="businessPartner" [(ngModel)]="model.BusinessPartner" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="insuranceCategory">Insurance Category</label>
+    <input id="insuranceCategory" name="insuranceCategory" [(ngModel)]="model.InsuranceCategory" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="newRenewal">New/Renewal</label>
+    <input id="newRenewal" name="newRenewal" [(ngModel)]="model.NewRenewal" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="principalCo">Principal Co.</label>
+    <input id="principalCo" name="principalCo" [(ngModel)]="model.PrincipalCo" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="businessEmpCode">Business/Emp Code</label>
+    <input id="businessEmpCode" name="businessEmpCode" [(ngModel)]="model.BusinessEmpCode" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="applicationNo">Application no</label>
+    <input id="applicationNo" name="applicationNo" [(ngModel)]="model.ApplicationNo" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="planType">Ulip/NonUlip/Term</label>
+    <input id="planType" name="planType" [(ngModel)]="model.PlanType" type="text" />
+  </div>
+  <div class="actions">
+    <button type="button" (click)="emitChange()">Apply</button>
+    <button type="submit">Save</button>
+  </div>
+</form>

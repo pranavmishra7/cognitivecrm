@@ -1,0 +1,159 @@
+<div class="p-6 space-y-6">
+  <!-- Import Excel -->
+  <div class="border p-4 rounded-lg bg-white shadow">
+    <h2 class="text-lg font-semibold mb-3">📂 Import Form from Excel</h2>
+    <input type="file" (change)="onFileChange($event)" accept=".xlsx,.xls" />
+    <div *ngIf="uploading" class="text-blue-600 mt-2">Uploading...</div>
+    <button (click)="importToApi()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      [disabled]="!formData || uploading">
+      Import Form
+    </button>
+  </div>
+
+  <!-- <div class="border p-4 rounded-lg bg-white shadow">
+    <h2 class="text-lg font-semibold mb-3">Create Form</h2>
+    <button (click)="importToApi()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      [disabled]="!formData || uploading">
+      Import Form
+    </button>
+    <div *ngIf="uploading" class="text-blue-600 mt-2">Uploading...</div>
+  </div> -->
+  <!-- Form Details -->
+  <div *ngIf="formData" class="border p-4 rounded-lg bg-white shadow">
+    <h2 class="text-xl font-bold mb-2 flex items-center">
+      Form: {{ formData.formName }}
+      <button (click)="startEditForm()" class="ml-3 text-blue-600 hover:text-blue-800">✏️</button>
+      <button (click)="deleteForm()" class="ml-2 text-red-600 hover:text-red-800">🗑️</button>
+    </h2>
+
+    <div *ngIf="editingForm" class="space-y-2 mb-3">
+      <input [(ngModel)]="editTarget.formName" placeholder="Form Name" class="border rounded px-2 py-1 w-64" />
+      <div class="space-x-2">
+        <button (click)="saveEditForm()" class="bg-green-500 text-white px-3 py-1 rounded">Save</button>
+        <button (click)="cancelEdit()" class="bg-gray-400 text-white px-3 py-1 rounded">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Sections -->
+    <div *ngFor="let sec of formData.sections" class="mb-6 p-4 rounded-lg shadow"
+      [ngClass]="{'bg-gray-50': editingSectionId !== sec.id, 'bg-yellow-50': editingSectionId === sec.id}">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-lg font-semibold">
+          {{ formatLabel(sec.sectionName) }} (Order: {{ sec.displayOrder }})
+        </h3>
+        <div>
+          <button (click)="startEditSection(sec)" class="text-blue-600 hover:text-blue-800 mr-2">✏️</button>
+          <button (click)="deleteSection(sec)" class="text-red-600 hover:text-red-800">🗑️</button>
+        </div>
+      </div>
+
+      <div *ngIf="editingSectionId === sec.id" class="space-y-2 mb-3">
+        <input [(ngModel)]="editTarget.sectionName" placeholder="Section Name" class="border rounded px-2 py-1 w-64" />
+        <input [(ngModel)]="editTarget.displayOrder" type="number" class="border rounded px-2 py-1 w-32" />
+        <div class="space-x-2">
+          <button (click)="saveEditSection()" class="bg-green-500 text-white px-3 py-1 rounded">Save</button>
+          <button (click)="cancelEdit()" class="bg-gray-400 text-white px-3 py-1 rounded">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Fields -->
+      <table class="table-auto w-full border border-gray-300 bg-white shadow-sm rounded">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="border px-2 py-1">Order</th>
+            <th class="border px-2 py-1">Field Name</th>
+            <th class="border px-2 py-1">Type</th>
+            <th class="border px-2 py-1">Label</th>
+            <th class="border px-2 py-1">Placeholder</th>
+            <th class="border px-2 py-1">Required</th>
+            <th class="border px-2 py-1">Options</th>
+            <th class="border px-2 py-1">Validation</th>
+            <th class="border px-2 py-1">Default Value</th>
+            <th class="border px-2 py-1">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let f of sec.fields">
+            <ng-container *ngIf="editingFieldId !== f.id; else editRow">
+              <td class="border px-2">{{ f.fieldOrder }}</td>
+              <td class="border px-2">{{ f.fieldName }}</td>
+              <td class="border px-2">{{ f.type }}</td>
+              <td class="border px-2">{{ f.label }}</td>
+              <td class="border px-2">{{ f.placeholder }}</td>
+              <td class="border px-2">{{ f.required ? 'Yes' : 'No' }}</td>
+              <td class="border px-2">{{ f.options }}</td>
+              <td class="border px-2">{{ f.validationMessage }}</td>
+              <td class="border px-2">{{ f.defaultValue }}</td>
+              <td class="border px-2 text-center">
+                <button (click)="startEditField(f)" class="text-blue-600 hover:text-blue-800 mr-2">✏️</button>
+                <button (click)="deleteField(sec, f)" class="text-red-600 hover:text-red-800">🗑️</button>
+              </td>
+            </ng-container>
+
+            <!-- Edit Row -->
+            <ng-template #editRow>
+         
+            <!-- Field Order -->
+            <td class="px-2 py-1 border">
+              <input [(ngModel)]="editTarget.fieldOrder" type="number"
+                class="w-full border rounded px-2 py-1 text-center" />
+            </td>
+
+            <!-- Field Name -->
+            <td class="px-2 py-1 border">
+              <input [(ngModel)]="editTarget.fieldName" placeholder="Field Name"
+                class="w-full border rounded px-2 py-1" />
+            </td>
+
+            <!-- Type -->
+            <td class="px-2 py-1 border">
+              <input [(ngModel)]="editTarget.type" placeholder="Type" class="w-full border rounded px-2 py-1" />
+            </td>
+
+            <!-- Label -->
+            <td class="px-2 py-1 border">
+              <input [(ngModel)]="editTarget.label" placeholder="Label" class="w-full border rounded px-2 py-1" />
+            </td>
+
+            <!-- Placeholder -->
+            <td class="px-2 py-1 border">
+              <input [(ngModel)]="editTarget.placeholder" placeholder="Placeholder"
+                class="w-full border rounded px-2 py-1" />
+            </td>
+
+            <!-- Required -->
+            <td class="px-2 py-1 border text-center">
+              <input type="checkbox" [(ngModel)]="editTarget.required" />
+            </td>
+
+            <!-- Options -->
+            <td class="px-2 py-1 border">
+              <input [(ngModel)]="editTarget.options" placeholder="Options (comma-separated)"
+                class="w-full border rounded px-2 py-1" />
+            </td>
+
+            <!-- Validation Message -->
+            <td class="px-2 py-1 border">
+              <input [(ngModel)]="editTarget.validationMessage" placeholder="Validation Message"
+                class="w-full border rounded px-2 py-1" />
+            </td>
+
+            <!-- Default Value -->
+            <td class="px-2 py-1 border">
+              <input [(ngModel)]="editTarget.defaultValue" placeholder="Default Value"
+                class="w-full border rounded px-2 py-1" />
+            </td>
+
+            <!-- Actions -->
+            <td class="px-2 py-1 border text-center">
+              <button (click)="saveEditField(sec)" class="text-green-600 mr-2">💾</button>
+              <button (click)="cancelEdit()" class="text-gray-600">✖</button>
+            </td>
+          </ng-template>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

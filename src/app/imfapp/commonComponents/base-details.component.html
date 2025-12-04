@@ -1,0 +1,26 @@
+<form #f="ngForm" (ngSubmit)="onSubmit(f)" class="base-details-form">
+  <div class="form-row">
+    <label for="baseCommAmt">Base Comm Amt</label>
+    <input id="baseCommAmt" name="baseCommAmt" [(ngModel)]="model.BaseCommAmt" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="tdsAmount">TDS Amount</label>
+    <input id="tdsAmount" name="tdsAmount" [(ngModel)]="model.TdsAmount" type="number" />
+  </div>
+  <div class="form-row">
+    <label for="amtClaimed">Amt Claimed</label>
+    <input id="amtClaimed" name="amtClaimed" [(ngModel)]="model.AmtClaimed" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="amtReceived">Amt Received</label>
+    <input id="amtReceived" name="amtReceived" [(ngModel)]="model.AmtReceived" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="basePending">Base Pending</label>
+    <input id="basePending" name="basePending" [(ngModel)]="model.BasePending" type="text" />
+  </div>
+  <div class="actions">
+    <button type="button" (click)="emitChange()">Apply</button>
+    <button type="submit">Save</button>
+  </div>
+</form>

@@ -1,0 +1,123 @@
+<div *ngIf="formConfig" class="space-y-6 p-6 pb-32">
+  <h2 class="text-2xl font-bold mb-4">{{ formConfig.formName! }}</h2>
+<!-- Top action bar: Template (left) + Import (right) -->
+<div class="w-full bg-white shadow-lg border-t p-4 flex justify-between items-center">
+  
+  <!-- LEFT: Download Template -->
+  <button
+    type="button"
+    (click)="downloadTemplate()"
+    class="bg-yellow-500 text-white px-4 py-2 rounded shadow"
+  >
+    Download Bulk Import Template
+  </button>
+
+  <!-- RIGHT: Import -->
+  <div>
+    <!-- Hidden file input -->
+    <input
+      #fileInput
+      type="file"
+      accept=".csv,.xlsx"
+      hidden
+      (change)="onTemplateFileChange($any($event.target).files?.[0])"
+    />
+
+    <!-- Visible Import button -->
+    <button
+      type="button"
+      class="bg-blue-600 text-white px-4 py-2 rounded shadow"
+      (click)="fileInput.click()"
+    >
+      📁 Import CSV / Excel
+    </button>
+  </div>
+</div>
+
+<!-- Preview Section -->
+<!-- <div *ngIf="csvXlsxPreviewHeaders.length" class="mt-4 space-y-2">
+  <div><strong>Headers (labels):</strong> {{ csvXlsxPreviewHeaders.join(', ') }}</div>
+  <div><strong>Internal keys (row 2):</strong> {{ csvXlsxPreviewInternalKeys.join(', ') }}</div>
+
+  <div *ngIf="csvWarnings.length">
+    <strong>Warnings:</strong>
+    <div *ngFor="let w of csvWarnings">• {{ w }}</div>
+  </div>
+</div> -->
+
+
+  <!-- Sections -->
+  <div *ngFor="let section of formConfig.sections" class="bg-white rounded-lg shadow p-6">
+    <h3 class="text-xl font-semibold mb-4">{{ formatLabel( section.sectionName) }}</h3>
+
+    <form [formGroup]="sectionForms[section.id!]" class="grid grid-cols-2 gap-4">
+      <div *ngFor="let field of section?.fields" class="flex flex-col space-y-1">
+        <label class="font-medium">{{ field?.label }}</label>
+
+        <!-- Text / Number / Date -->
+        <input *ngIf="['text', 'number', 'date'].includes(field?.type ?? '')" [type]="field?.type"
+          [formControlName]="field?.fieldName ?? ''" [placeholder]="field?.placeholder"
+          class="border rounded px-3 py-2 focus:ring focus:ring-blue-200" />
+
+        <!-- Dropdown -->
+        <select *ngIf="field.type === 'dropdown'" [formControlName]="field.fieldName"
+          class="border rounded px-3 py-2 focus:ring focus:ring-blue-200">
+          <option value="">Select {{ field.label }}</option>
+          <option *ngFor="let opt of field.options?.split(',')" [value]="opt.trim()">
+            {{ opt }}
+          </option>
+        </select>
+
+        <!-- Autocomplete -->
+        <input *ngIf="field.type === 'autocomplete'" [attr.list]="field.fieldName  + '_list'"
+          [formControlName]="field.fieldName" [placeholder]="field.placeholder"
+          (input)="onAutocompleteInput(field, $any($event.target).value)"
+          (change)="onAutocompleteSelect(field, $any($event.target).value)"
+          class="border rounded px-3 py-2 focus:ring focus:ring-blue-200" />
+
+        <datalist [id]="field.fieldName + '_list'" onselect="">
+          <option *ngFor="let opt of field.optionList" [value]="opt ? opt : ''"></option>
+        </datalist>
+
+        <!-- ✅ Clean Toggle Switch for Checkbox -->
+        <div *ngIf="field.type === 'checkbox'" class="flex items-center space-x-3 cursor-pointer select-none"
+          (click)="toggleCheckbox(section.id!, field.fieldName)">
+          <!-- Toggle pill -->
+          <div [ngClass]="{
+              'bg-green-500': getFieldControl(section.id!, field.fieldName)?.value,
+              'bg-gray-300': !getFieldControl(section.id!, field.fieldName)?.value
+            }" class="relative w-12 h-6 rounded-full transition-colors duration-300">
+            <div [ngClass]="{
+                'translate-x-6': getFieldControl(section.id!, field.fieldName)?.value,
+                'translate-x-0': !getFieldControl(section.id!, field.fieldName)?.value
+              }"
+              class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300">
+            </div>
+          </div>
+          <span class="text-gray-800 font-medium">
+            {{ field.label }}
+          </span>
+        </div>
+
+        <!-- Validation -->
+        <div class="text-red-600 text-sm mt-1"
+          *ngIf="submitted && getFieldControl(section.id!, field.fieldName)?.invalid">
+          {{ field.validationMessage || (field.label + ' is required') }}
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Sticky Footer Buttons -->
+<div class="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t p-4 flex justify-end space-x-4">
+  <button type="button" (click)="onSaveDraft()" class="bg-yellow-500 text-white px-4 py-2 rounded shadow">
+    Save Draft
+  </button>
+  <button type="button" (click)="onSubmit()" class="bg-blue-600 text-white px-4 py-2 rounded shadow">
+    Submit
+  </button>
+  <button type="button" (click)="onReset()" class="bg-gray-500 text-white px-4 py-2 rounded shadow">
+    Reset
+  </button>
+</div>

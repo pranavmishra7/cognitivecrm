@@ -1,0 +1,360 @@
+import { Component, Input, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { FormDto, SectionDto, FieldConfigDto, ImfResponse } from '../models/FieldConfig';
+import { FormDataValue } from '../models/FormDataValue';
+import { ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
+import { FormApiService } from '../services/config/form-api-service.service';
+import { AuthService } from '../services/config/auth.service';
+import { formatLabel, toHtmlId } from '../utility/utility';
+import { TemplateDownloadService } from '../services/config/csvtemplate.service';
+import { TemplateImportService } from '../services/config/template-import-service.service';
+@Component({
+  selector: 'app-dynamic-form',
+  templateUrl: './dynamic-form.component.html',
+  styleUrls: ['./dynamic-form.component.css'],
+  imports: [CommonModule, ReactiveFormsModule],
+  standalone: true
+})
+export class DynamicFormComponent implements OnInit {
+  formatLabel = formatLabel;
+  toHtmlId = toHtmlId;
+  clientId!: string;
+  formName!: string;
+  states: string[] = [];
+  districts: string[] = [];
+  formConfig: FormDto | null = null;
+  sectionForms: { [sectionId: string]: FormGroup } = {};
+  csvXlsxPreviewHeaders: string[] = [];
+  csvXlsxPreviewInternalKeys: string[] = [];
+  csvXlsxPreviewRows: string[][] = [];
+  csvWarnings: string[] = [];
+  importPreviewCount = 0;
+  importResult: any;
+  private _lastImportedFile?: File | null = null;
+
+  constructor(
+    private fb: FormBuilder,
+    private http: HttpClient,
+    private route: ActivatedRoute,
+    private formApiService: FormApiService,
+    private authService: AuthService,
+    private templateDownloadService: TemplateDownloadService,
+    private templateImportService: TemplateImportService
+  ) { }
+
+  ngOnInit(): void {
+    // ✅ read params from URL
+    this.route.paramMap.subscribe(params => {
+      this.clientId = this.authService.getClientId()!;
+      this.formName = params.get('formName')!;
+
+      this.loadForm();
+    });
+  }
+
+  private loadForm(): void {
+    this.formApiService.getForm(this.clientId, this.formName).subscribe((res) => {
+      if (res.success) {
+        this.formConfig = res.data;
+        this.buildForms();
+      }
+    });
+  }
+
+  private buildForms(): void {
+    if (!this.formConfig) return;
+    this.formConfig.sections.forEach((section: SectionDto) => {
+      const group: any = {};
+      section.fields.forEach((field: FieldConfigDto) => {
+        const validators = [];
+        if (field.required) validators.push(Validators.required);
+        if (field.type === 'number') validators.push(Validators.pattern(/^[0-9]*$/));
+        group[field.fieldName] = [field.defaultValue || '', validators];
+      });
+      this.sectionForms[section.id!] = this.fb.group(group);
+    });
+  }
+  submitted = false;
+
+  private getAllFormValues() {
+    const result: any = {};
+    for (const section of this.formConfig!.sections) {
+      result[section.sectionName] = this.sectionForms[section.id!].value;
+    }
+    return result;
+  }
+
+  private getAllFormDataValues(): FormDataValue[] {
+    const result: FormDataValue[] = [];
+    const transactionId = crypto.randomUUID()
+
+    const sections = this.formConfig?.sections ?? [];
+
+    for (const section of sections) {
+      // guard for missing fields array
+      const fields = section.fields ?? [];
+      const sectionForm = this.sectionForms?.[section.id ?? ''] as FormGroup | undefined;
+
+      for (const field of fields) {
+        const rawValue = sectionForm?.get(field.fieldName ?? '')?.value;
+        const dataValue = rawValue == null ? '' : String(rawValue);
+
+        const fdv: FormDataValue = {
+          id: crypto.randomUUID(),
+          transactionId,
+          clientId: this.clientId ?? null,
+          formId: this.formConfig?.id ?? '',
+          sectionId: section.id ?? '',
+          fieldId: field.id ?? null,
+          dataValue,
+          active: true,
+          isDraft: !this.submitted,
+          createdAt: new Date().toISOString(),
+          updatedAt: null,
+          createdBy: null,
+          updatedBy: null
+        };
+
+        result.push(fdv);
+      }
+    }
+
+    return result;
+  }
+  onSaveDraft() {
+    this.submitted = false; // ignore validations
+    let values = this.getAllFormValues() as FormDataValue[];
+    console.log('Draft Saved:', values);
+    // TODO: Call draft save API
+  }
+
+  onSubmit() {
+    this.submitted = true;
+
+    let allValid = true;
+    for (const key of Object.keys(this.sectionForms)) {
+      const formGroup = this.sectionForms[key];
+      if (formGroup.invalid) {
+        allValid = false;
+      }
+    }
+
+    if (!allValid) {
+      console.warn('Form has validation errors');
+      return;
+    }
+
+    const values = this.getAllFormValues() as FormDataValue[];
+
+    var data = this.getAllFormDataValues();
+    this.formApiService.submitFormData(data).subscribe((res: ImfResponse<FormDataValue>) => {
+      debugger;
+      if (res.success) {
+        console.log('Form Submitted Successfully:', res.data);
+      } else {
+        console.error('Form Submission Failed:', res.message);
+      }
+    });
+  }
+
+  mapToFormDataValues(data: any[]): FormDataValue[] {
+    return data.map(r => ({
+      id: r.id ?? crypto.randomUUID(),
+      formId: r.formId,
+      sectionId: r.sectionId,
+      fieldId: r.fieldId,
+      dataValue: r.dataValue ?? '',
+      active: r.active ?? true,
+      isDraft: r.isDraft ?? true,
+      createdAt: new Date().toISOString(),
+      updatedAt: null
+    }));
+  }
+
+  onReset() {
+    this.submitted = false;
+    for (const key of Object.keys(this.sectionForms)) {
+      this.sectionForms[key].reset();
+    }
+    console.log('Form Reset');
+  }
+
+  // onSave(section: SectionDto): void {
+  //   const form = this.sectionForms[section.id!];
+  //   if (form.valid) {
+  //     console.log('✅ Saved section', section.sectionName, form.value);
+  //   } else {
+  //     form.markAllAsTouched();
+  //   }
+  // }
+
+  // onReset(section: SectionDto): void {
+  //   this.sectionForms[section.id!].reset();
+  // }
+
+  getFieldControl(sectionId: string, fieldName: string) {
+    return this.sectionForms[sectionId].get(fieldName);
+  }
+  toggleCheckbox(sectionId: string, fieldName: string) {
+    const control = this.getFieldControl(sectionId, fieldName);
+    if (control) {
+      control.setValue(!control.value);
+    }
+  }
+  getDistricts(state: string, dist: string) {
+    this.formApiService.getDistrict(state, dist).subscribe((res) => {
+      if (res.length > 0) {
+        this.districts = res;
+      }
+    });
+  }
+
+  getStates(state: string) {
+    this.formApiService.getState(state).subscribe((res) => {
+      if (res.length > 0) {
+        this.states = res;
+      }
+    });
+  }
+  onAutocompleteInput(field: FieldConfigDto, inputValue: string) {
+    // call your API which returns string[] (suggestions)
+    // debounce/throttle in real app — using server-side or RxJS best practice
+    const values = this.getAllFormValues();
+    var section = this.formConfig!.sections.find(x => x.id === field.sectionId)
+    field.optionList = [];
+    if (field.fieldName.includes('state') && inputValue.length > 2) {
+      this.formApiService.getState(inputValue).subscribe((res) => {
+        if (res.length > 0) {
+          field.optionList = res || [];
+        }
+      });
+    } else if (field.fieldName.includes('district') && inputValue.length > 2) {
+      if (section != null) {
+        var state = values[section.sectionName].state;
+        this.formApiService.getDistrict(state, inputValue).subscribe((res) => {
+          if (res.length > 0) {
+
+            field.optionList = res || [];
+          }
+        });
+      }
+    }
+    else if (field.fieldName.includes('pin_code') && inputValue.length === 6) {
+
+      this.formApiService.getByPostalCode(Number(inputValue)).subscribe((res) => {
+        if (res.length > 0) {
+          field.optionList = res.map(item =>
+            `${item.district}, ${item.stateName}, ${item.pinCode}, ${item.officeName}`
+          );;
+        }
+      });
+    }
+  }
+  onAutocompleteSelect(field: FieldConfigDto, value: string) {
+    if (!value) return;
+    if (field.fieldName.includes('pin_code')) {
+      debugger
+      // Expected format: "district, stateName, pinCode"
+      const parts = value.split(',').map(x => x.trim());
+
+      const district = parts[0] || '';
+      const state = parts[1] || '';
+      const pinCode = parts[2] || '';
+
+      // Assign values to other fields
+
+      this.setFieldValue(field.fieldName.replace('pin_code', 'district'), district, field.sectionId!);
+      this.setFieldValue(field.fieldName.replace('pin_code', 'state'), state, field.sectionId!);
+      this.setFieldValue(field.fieldName, pinCode, field.sectionId!);
+    }
+  }
+  setFieldValue(fieldName: string, value: any, sectionId: string) {
+
+    const control = this.getFieldControl(sectionId, fieldName);
+    if (control) {
+      control.setValue(value);
+    }
+
+  }
+
+  downloadTemplate() {
+    this.templateDownloadService.downloadTemplateWithHiddenFieldsXlsx(this.formConfig, `${this.formConfig?.formName}.xlsx`);
+  }
+
+/**
+ * Accepts either:
+ *  - a File (if template passed file directly)
+ *  - an Event (if you used (change)="onTemplateFileChange($event)")
+ *  - null/undefined (safely ignored)
+ */
+async onTemplateFileChange(eventOrFile?: Event | File | null) {
+  // determine the File object robustly
+  let file: File | null = null;
+
+  // If a File was passed directly from template: onTemplateFileChange(file)
+  if (eventOrFile instanceof File) {
+    file = eventOrFile;
+  } else if (eventOrFile) {
+    // Could be a DOM Event
+    try {
+      const ev = eventOrFile as Event;
+      const target = ev.target as HTMLInputElement | null;
+      // guard strongly for null/undefined
+      file = target?.files?.[0] ?? null;
+    } catch (err) {
+      // defensive fallback if something unexpected was passed
+      console.warn('Could not extract file from event:', err);
+      file = null;
+    }
+  }
+
+  if (!file) {
+    // no file selected or we couldn't parse it — exit silently or show UI message
+    console.warn('No file provided to onTemplateFileChange');
+    return;
+  }
+
+  try {
+    // parse file with your import service (replace importSvc with your service instance)
+    const parsed = await this.templateImportService.parseXlsxFile(file);
+
+    // store parsed preview for UI
+    this.csvXlsxPreviewHeaders = parsed.headers;
+    this.csvXlsxPreviewInternalKeys = parsed.internalKeys;
+    this.csvXlsxPreviewRows = parsed.dataRows.slice(0, 50);
+    this.csvWarnings = parsed.warnings;
+
+    // keep the file around if you want to import later without re-selecting
+    this._lastImportedFile = file;
+    this.importParsedFile(file);
+  } catch (err: any) {
+    console.error('Error parsing file', err);
+    this.csvWarnings = [ 'Failed to parse file: ' + (err?.message ?? err) ];
+  }
+}
+
+  // when user confirms "Import" -> map and send
+  async importParsedFile(file: File) {
+    // parse (or reuse parsed result if stored)
+    const parsed = await this.templateImportService.parseXlsxFile(file);
+    const mapped = this.templateImportService.mapParsedToFormDataValues(parsed, this.formConfig, this.clientId, true);
+    this.csvWarnings = mapped.warnings;
+    if (!mapped.values.length) {
+      this.csvWarnings.push('No values mapped - nothing to import.');
+      return;
+    }
+
+    // preview count
+    this.importPreviewCount = mapped.values.length;
+    let url = 'https://localhost:7003/api/formDataValues'
+    // send in batches
+    const res = await this.templateImportService.postValuesInBatches(mapped.values, 100, `${url}/import`);
+    this.importResult = res;
+    if (res.errors && res.errors.length) {
+      this.csvWarnings.push('Some batches failed. Check console/importResult for details.');
+    }
+  }
+}

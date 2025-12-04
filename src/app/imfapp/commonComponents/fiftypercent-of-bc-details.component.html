@@ -1,0 +1,26 @@
+<form #f="ngForm" (ngSubmit)="onSubmit(f)" class="50percent-of-bc-details-form">
+  <div class="form-row">
+    <label for="bcPcAmt">50% BC + PC Amt</label>
+    <input id="bcPcAmt" name="bcPcAmt" [(ngModel)]="model.BcPcAmt" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="tdsAmount">TDS Amount</label>
+    <input id="tdsAmount" name="tdsAmount" [(ngModel)]="model.TdsAmount" type="number" />
+  </div>
+  <div class="form-row">
+    <label for="amountClaimed">Amount Claimed</label>
+    <input id="amountClaimed" name="amountClaimed" [(ngModel)]="model.AmountClaimed" type="number" />
+  </div>
+  <div class="form-row">
+    <label for="amountReceived">Amount Received</label>
+    <input id="amountReceived" name="amountReceived" [(ngModel)]="model.AmountReceived" type="number" />
+  </div>
+  <div class="form-row">
+    <label for="bcPcPending">50% BC + PC Pending</label>
+    <input id="bcPcPending" name="bcPcPending" [(ngModel)]="model.BcPcPending" type="text" />
+  </div>
+  <div class="actions">
+    <button type="button" (click)="emitChange()">Apply</button>
+    <button type="submit">Save</button>
+  </div>
+</form>

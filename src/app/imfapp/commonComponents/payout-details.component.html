@@ -1,0 +1,66 @@
+<form #f="ngForm" (ngSubmit)="onSubmit(f)" class="payout-details-form">
+  <div class="form-row">
+    <label for="payout">Payout %</label>
+    <input id="payout" name="payout" [(ngModel)]="model.Payout" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="payoutMonth">Payout Month</label>
+    <input id="payoutMonth" name="payoutMonth" [(ngModel)]="model.PayoutMonth" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="payoutAmount">Payout Amount</label>
+    <input id="payoutAmount" name="payoutAmount" [(ngModel)]="model.PayoutAmount" type="number" />
+  </div>
+  <div class="form-row">
+    <label for="tdsDeducted">TDS Deducted</label>
+    <input id="tdsDeducted" name="tdsDeducted" [(ngModel)]="model.TdsDeducted" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="netPayoutAmount">Net Payout Amount</label>
+    <input id="netPayoutAmount" name="netPayoutAmount" [(ngModel)]="model.NetPayoutAmount" type="number" />
+  </div>
+  <div class="form-row">
+    <label for="amountPaid">Amount Paid</label>
+    <input id="amountPaid" name="amountPaid" [(ngModel)]="model.AmountPaid" type="number" />
+  </div>
+  <div class="form-row">
+    <label for="balancePayable">Balance Payable</label>
+    <input id="balancePayable" name="balancePayable" [(ngModel)]="model.BalancePayable" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="payoutStatus">Payout Status</label>
+    <input id="payoutStatus" name="payoutStatus" [(ngModel)]="model.PayoutStatus" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="paidDate">Paid Date</label>
+    <input id="paidDate" name="paidDate" [(ngModel)]="model.PaidDate" type="date" />
+  </div>
+  <div class="form-row">
+    <label for="payeeName">Payee Name</label>
+    <input id="payeeName" name="payeeName" [(ngModel)]="model.PayeeName" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="paymentmode">PaymentMode</label>
+    <input id="paymentmode" name="paymentmode" [(ngModel)]="model.Paymentmode" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="bankACNo">Bank A/c No</label>
+    <input id="bankACNo" name="bankACNo" [(ngModel)]="model.BankACNo" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="bankHolderName">Bank Holder Name</label>
+    <input id="bankHolderName" name="bankHolderName" [(ngModel)]="model.BankHolderName" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="bankName">Bank Name</label>
+    <input id="bankName" name="bankName" [(ngModel)]="model.BankName" type="text" />
+  </div>
+  <div class="form-row">
+    <label for="ifscCode">IFSC Code</label>
+    <input id="ifscCode" name="ifscCode" [(ngModel)]="model.IfscCode" type="text" />
+  </div>
+  <div class="actions">
+    <button type="button" (click)="emitChange()">Apply</button>
+    <button type="submit">Save</button>
+  </div>
+</form>

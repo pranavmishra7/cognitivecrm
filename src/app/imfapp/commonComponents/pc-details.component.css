@@ -1,0 +1,46 @@
+/* Basic styles for Pcdetails */
+.pc-details-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: 720px;
+  margin: 0.5rem 0;
+}
+
+.pc-details-form .form-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.pc-details-form label {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.pc-details-form input, .pc-details-form select, .pc-details-form textarea {
+  padding: 0.5rem;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.pc-details-form .actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.pc-details-form button {
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  cursor: pointer;
+}
+
+.pc-details-form button[type="submit"] {
+  background: #0b74de;
+  color: white;
+  border-color: #0b74de;
+}
