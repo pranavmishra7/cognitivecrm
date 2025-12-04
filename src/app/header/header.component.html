@@ -44,7 +44,6 @@
   <div class="flex flex-col space-y-4">
     <!-- Regular Links -->
     <a routerLink="/form-builder" (click)="menuOpen = false" class="hover:underline">Form Builder</a>
-    <a routerLink="/life-insurance" (click)="menuOpen = false" class="hover:underline">Life Insurance</a>
 
     <a *ngFor="let link of forms"
      [routerLink]="['form/', link]"

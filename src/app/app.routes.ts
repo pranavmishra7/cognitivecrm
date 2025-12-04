@@ -11,5 +11,4 @@ export const routes: Routes = [
    { path: 'login', component: LoginComponent },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   {path:'dashboard', component: DashboardComponent},
-  {path:'life-insurance', loadComponent: () => import('./imfapp/life-insurance/life-insurance.component').then(m => m.LifeInsuranceComponent)}
 ];
