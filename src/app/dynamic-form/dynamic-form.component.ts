@@ -11,11 +11,16 @@ import { AuthService } from '../services/config/auth.service';
 import { formatLabel, toHtmlId } from '../utility/utility';
 import { TemplateDownloadService } from '../services/config/csvtemplate.service';
 import { TemplateImportService } from '../services/config/template-import-service.service';
+import { FormDataValueReadResponseDto } from '../models/FormDataValueReadResponseDto ';
+import { FormsModule } from '@angular/forms'; 
+import { PaginatedResult } from '../models/PaginatedResult';
+import { firstValueFrom } from 'rxjs';
+import { NamePipe } from '../transformers/NamePipe';
 @Component({
   selector: 'app-dynamic-form',
   templateUrl: './dynamic-form.component.html',
   styleUrls: ['./dynamic-form.component.css'],
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, NamePipe],
   standalone: true
 })
 export class DynamicFormComponent implements OnInit {
@@ -34,7 +39,15 @@ export class DynamicFormComponent implements OnInit {
   importPreviewCount = 0;
   importResult: any;
   private _lastImportedFile?: File | null = null;
-
+  activeTab: 'list' | 'create' = 'list'; // default selected tab is LIST
+  items: FormDataValueReadResponseDto[] = [];
+  isLoading = false;
+  pageNumber = 1;
+  pageSize = 25;
+  totalPages = 0;
+  totalCount = 0;
+  listFilter = '';
+  submitted = false;
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
@@ -52,6 +65,7 @@ export class DynamicFormComponent implements OnInit {
       this.formName = params.get('formName')!;
 
       this.loadForm();
+      //this.loadPage();
     });
   }
 
@@ -60,6 +74,7 @@ export class DynamicFormComponent implements OnInit {
       if (res.success) {
         this.formConfig = res.data;
         this.buildForms();
+        this.loadPage();
       }
     });
   }
@@ -77,7 +92,6 @@ export class DynamicFormComponent implements OnInit {
       this.sectionForms[section.id!] = this.fb.group(group);
     });
   }
-  submitted = false;
 
   private getAllFormValues() {
     const result: any = {};
@@ -284,57 +298,57 @@ export class DynamicFormComponent implements OnInit {
     this.templateDownloadService.downloadTemplateWithHiddenFieldsXlsx(this.formConfig, `${this.formConfig?.formName}.xlsx`);
   }
 
-/**
- * Accepts either:
- *  - a File (if template passed file directly)
- *  - an Event (if you used (change)="onTemplateFileChange($event)")
- *  - null/undefined (safely ignored)
- */
-async onTemplateFileChange(eventOrFile?: Event | File | null) {
-  // determine the File object robustly
-  let file: File | null = null;
+  /**
+   * Accepts either:
+   *  - a File (if template passed file directly)
+   *  - an Event (if you used (change)="onTemplateFileChange($event)")
+   *  - null/undefined (safely ignored)
+   */
+  async onTemplateFileChange(eventOrFile?: Event | File | null) {
+    // determine the File object robustly
+    let file: File | null = null;
 
-  // If a File was passed directly from template: onTemplateFileChange(file)
-  if (eventOrFile instanceof File) {
-    file = eventOrFile;
-  } else if (eventOrFile) {
-    // Could be a DOM Event
+    // If a File was passed directly from template: onTemplateFileChange(file)
+    if (eventOrFile instanceof File) {
+      file = eventOrFile;
+    } else if (eventOrFile) {
+      // Could be a DOM Event
+      try {
+        const ev = eventOrFile as Event;
+        const target = ev.target as HTMLInputElement | null;
+        // guard strongly for null/undefined
+        file = target?.files?.[0] ?? null;
+      } catch (err) {
+        // defensive fallback if something unexpected was passed
+        console.warn('Could not extract file from event:', err);
+        file = null;
+      }
+    }
+
+    if (!file) {
+      // no file selected or we couldn't parse it — exit silently or show UI message
+      console.warn('No file provided to onTemplateFileChange');
+      return;
+    }
+
     try {
-      const ev = eventOrFile as Event;
-      const target = ev.target as HTMLInputElement | null;
-      // guard strongly for null/undefined
-      file = target?.files?.[0] ?? null;
-    } catch (err) {
-      // defensive fallback if something unexpected was passed
-      console.warn('Could not extract file from event:', err);
-      file = null;
+      // parse file with your import service (replace importSvc with your service instance)
+      const parsed = await this.templateImportService.parseXlsxFile(file);
+
+      // store parsed preview for UI
+      this.csvXlsxPreviewHeaders = parsed.headers;
+      this.csvXlsxPreviewInternalKeys = parsed.internalKeys;
+      this.csvXlsxPreviewRows = parsed.dataRows.slice(0, 50);
+      this.csvWarnings = parsed.warnings;
+
+      // keep the file around if you want to import later without re-selecting
+      this._lastImportedFile = file;
+      this.importParsedFile(file);
+    } catch (err: any) {
+      console.error('Error parsing file', err);
+      this.csvWarnings = ['Failed to parse file: ' + (err?.message ?? err)];
     }
   }
-
-  if (!file) {
-    // no file selected or we couldn't parse it — exit silently or show UI message
-    console.warn('No file provided to onTemplateFileChange');
-    return;
-  }
-
-  try {
-    // parse file with your import service (replace importSvc with your service instance)
-    const parsed = await this.templateImportService.parseXlsxFile(file);
-
-    // store parsed preview for UI
-    this.csvXlsxPreviewHeaders = parsed.headers;
-    this.csvXlsxPreviewInternalKeys = parsed.internalKeys;
-    this.csvXlsxPreviewRows = parsed.dataRows.slice(0, 50);
-    this.csvWarnings = parsed.warnings;
-
-    // keep the file around if you want to import later without re-selecting
-    this._lastImportedFile = file;
-    this.importParsedFile(file);
-  } catch (err: any) {
-    console.error('Error parsing file', err);
-    this.csvWarnings = [ 'Failed to parse file: ' + (err?.message ?? err) ];
-  }
-}
 
   // when user confirms "Import" -> map and send
   async importParsedFile(file: File) {
@@ -355,6 +369,69 @@ async onTemplateFileChange(eventOrFile?: Event | File | null) {
     this.importResult = res;
     if (res.errors && res.errors.length) {
       this.csvWarnings.push('Some batches failed. Check console/importResult for details.');
+    }
+  }
+
+  selectTab(tab: 'list' | 'create') {
+    this.activeTab = tab;
+  }
+
+  async loadPage() {
+    this.isLoading = true;
+    try {
+      debugger;
+      // replace with your real service call signature; example below assumes service returns PaginatedResult<FormDataValueReadResponseDto>
+      const res = await firstValueFrom(
+       await this.formApiService.getByFormPaged(
+        /* formId */ this.formConfig?.id ?? '00000000-0000-0000-0000-000000000000',
+        /* clientId */ this.clientId,
+        this.pageNumber,
+        this.pageSize
+      ));
+debugger;
+      if (!res) {
+        console.warn('No response from getByFormPaged');
+        return;
+      }
+
+      this.items = res.items ?? [];
+      this.totalPages = res.totalPages;
+      this.totalCount = res.totalCount;
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+  reload() {
+    this.loadPage();
+  }
+ applyFilter() {
+    // simple client-side filter on dataValue, field or section - you can replace with server-side search
+    if (!this.listFilter) {
+      this.loadPage();
+      return;
+    }
+    const q = this.listFilter.toLowerCase();
+    this.items = this.items.filter(
+      i =>
+        (i.dataValue ?? '').toLowerCase().includes(q) ||
+        (i.fieldName ?? '').toLowerCase().includes(q) ||
+        (i.sectionName ?? '').toLowerCase().includes(q)
+    );
+  }
+
+  prevPage() {
+    if (this.pageNumber > 1) {
+      this.pageNumber--;
+      this.loadPage();
+    }
+  }
+
+  nextPage() {
+    if (this.pageNumber < this.totalPages) {
+      this.pageNumber++;
+      this.loadPage();
     }
   }
 }

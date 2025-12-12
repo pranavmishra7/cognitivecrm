@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, catchError, throwError } from 'rxjs';
 import { ImportFieldsRequest, ImfResponse, FormDto } from '../../models/FieldConfig';
 import { PostalCode } from '../../models/PostalCode';
 import { FormDataValue } from '../../models/FormDataValue';
+import { FormDataValueReadResponseDto } from '../../models/FormDataValueReadResponseDto ';
+import {PaginatedResult} from '../../models/PaginatedResult';
 
 @Injectable({ providedIn: 'root' })
 export class FormApiService {
@@ -38,5 +40,32 @@ export class FormApiService {
   }
       submitFormData(formData: FormDataValue[]): Observable<ImfResponse<FormDataValue>> {
     return this.http.post<ImfResponse<FormDataValue>>(`${this.formValuebase}/submitt`, formData);
+  }
+  getByFormPaged(
+    formId: string,
+    clientId?: string,
+    page: number = 1,
+    pageSize: number = 25,
+    ascending: boolean = true
+  ): Observable<PaginatedResult<FormDataValueReadResponseDto>> {
+    const url = `${this.formValuebase}/${encodeURIComponent(formId)}`;
+
+    let params = new HttpParams()
+      .set('page', String(page))
+      .set('pageSize', String(pageSize))
+      .set('ascending', String(ascending));
+
+    if (clientId) {
+      params = params.set('clientId', clientId);
+    }
+
+    return this.http.get<PaginatedResult<FormDataValueReadResponseDto>>(url, { params })
+      .pipe(
+        catchError(err => {
+          // optionally handle some errors here or rethrow
+          console.error('FormDataService.getByFormPaged error', err);
+          return throwError(() => err);
+        })
+      );
   }
 }
