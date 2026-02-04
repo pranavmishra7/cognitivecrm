@@ -25,8 +25,9 @@ export class FormBuilderComponent implements OnInit {
   editingFieldId: string | null = null;
   editTarget: any = null;
   preview: any = [];
-
-  constructor(private api: FormApiService, private auth: AuthService) {}
+  selectedFiles: File[] = [];
+  parsedForms: FormDto[] = [];
+  constructor(private api: FormApiService, private auth: AuthService) { }
   ngOnInit(): void {
     this.clientId = this.auth.getClientId() || "";
   }
@@ -34,146 +35,134 @@ export class FormBuilderComponent implements OnInit {
   /** ------------------------
    * IMPORT EXCEL
    * ------------------------ */
-onFileChange(ev: Event) {
-  const input = ev.target as HTMLInputElement;
-  if (!input.files?.length) return;
+  onFileChange(ev: Event) {
+    const input = ev.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
 
-  const file = input.files[0];
-  const reader = new FileReader();
+    this.selectedFiles = Array.from(input.files);
+    this.parsedForms = []; // reset previous imports
 
-  // local uploaded file path (from your session)
-  const uploadedFileUrl = '/mnt/data/postalcodes.csv';
+    for (const file of this.selectedFiles) {
+      this.parseExcelFile(file);
+    }
+  }
 
-  // small helper to normalize strings into snake_case (lowercase, underscores)
-  const normalize = (s: string) =>
-    (s ?? '')
-      .toString()
-      .trim()
-      .replace(/[^\w\s-]/g, '')   // remove special chars
-      .replace(/\s+/g, '_')       // spaces -> underscore
-      .replace(/_+/g, '_')        // collapse multiple underscores
-      .toLowerCase();
+  private parseExcelFile(file: File) {
+    const reader = new FileReader();
 
-  reader.onload = (e: ProgressEvent<FileReader>) => {
-    const data = new Uint8Array((e.target as FileReader).result as ArrayBuffer);
-    const wb = XLSX.read(data, { type: 'array' });
+    const normalize = (s: string) =>
+      (s ?? '')
+        .toString()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '_')
+        .replace(/_+/g, '_')
+        .toLowerCase();
 
-    // Use sheet 0 as form name (original value preserved)
-    const formName = wb.SheetNames[0];
-    const formSheet = wb.Sheets[formName];
-    const formRows: any[] = XLSX.utils.sheet_to_json(formSheet, { defval: '' });
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      const data = new Uint8Array((e.target as FileReader).result as ArrayBuffer);
+      const wb = XLSX.read(data, { type: 'array' });
 
-    const sections: SectionDto[] = [];
-    this.preview = [];
+      const formName = wb.SheetNames[0];
+      const formSheet = wb.Sheets[formName];
+      const formRows: any[] = XLSX.utils.sheet_to_json(formSheet, { defval: '' });
 
-    // normalized form name for building IDs/keys
-    const formNameNorm = normalize(formName);
+      const sections: SectionDto[] = [];
+      const formNameNorm = normalize(formName);
 
-    formRows.forEach((row: any) => {
-      const rawSectionName = (row['Section'] ?? '').toString().trim();
-      if (!rawSectionName) return;
+      formRows.forEach((row: any) => {
+        const rawSectionName = (row['Section'] ?? '').toString().trim();
+        if (!rawSectionName) return;
 
-      const displayOrder = Number(row['Display Order'] ?? 0);
+        const displayOrder = Number(row['Display Order'] ?? 0);
+        const secSheet = wb.Sheets[rawSectionName];
+        const secRows: any[] = secSheet ? XLSX.utils.sheet_to_json(secSheet, { defval: '' }) : [];
 
-      // Section sheet (if present)
-      const secSheet = wb.Sheets[rawSectionName];
-      const secRows: any[] = secSheet ? XLSX.utils.sheet_to_json(secSheet, { defval: '' }) : [];
+        const sectionId = uuidv4();
+        const sectionNameNorm = normalize(rawSectionName);
+        const sectionName = `${formNameNorm}_${sectionNameNorm}`;
 
-      // Create a single sectionId for this section and normalized section name
-      const sectionId = uuidv4();
-      const sectionNameNorm = normalize(rawSectionName);
-      // final sectionName = formName_sectionName (normalized)
-      const sectionName = `${formNameNorm}_${sectionNameNorm}`;
+        const fields: FieldConfigDto[] = secRows.map((r: any, idx: number) => {
+          const label = (r['Name'] ?? '').toString().trim();
+          const baseFieldName = normalize(label);
+          const fieldName = `${formNameNorm}_${sectionNameNorm}_${baseFieldName}`;
 
-      const fields: FieldConfigDto[] = secRows.map((r: any, idx: number) => {
-        const label = (r['Name'] ?? '').toString().trim();
-        // base field name normalized
-        const baseFieldName = normalize(label);
-        // fieldName = formName_sectionName_fieldName
-        const fieldName = `${formNameNorm}_${sectionNameNorm}_${baseFieldName}`;
+          return {
+            id: uuidv4(),
+            clientId: this.clientId,
+            sectionId,
+            fieldName,
+            fieldOrder: Number(r['Display Order'] ?? idx + 1),
+            type: (r['Type'] ?? 'text').toString(),
+            label,
+            placeholder: (r['Placeholder'] ?? '').toString(),
+            options: (r['Options'] ?? '').toString(),
+            optionList: ((r['Options'] ?? '').toString()
+              ? (r['Options'] ?? '').toString().split(',').map((o: string) => o.trim())
+              : []),
+            required: /required|true|1|yes/i.test((r['Validation'] ?? '').toString()),
+            validationMessage: (r['Validation Message'] ?? '').toString(),
+            defaultValue: (r['Default Value'] ?? '').toString()
+          } as FieldConfigDto;
+        });
 
-        const type = (r['Type'] ?? '').toString() || 'text';
-        const fieldOrder = Number(r['Display Order'] ?? idx + 1);
-
-        return {
-          id: uuidv4(),
+        sections.push({
+          id: sectionId,
           clientId: this.clientId,
-          sectionId, // use the section's id so backend can link
-          fieldName,
-          fieldOrder,
-          type,
-          label,
-          placeholder: (r['Placeholder'] ?? '').toString(),
-          options: (r['Options'] ?? '').toString(),
-          optionList: ((r['Options'] ?? '').toString()
-            ? (r['Options'] ?? '').toString().split(',').map((opt: string) => opt.trim())
-            : []),
-          required: /required|true|1|yes/i.test((r['Validation'] ?? '').toString()),
-          validationMessage: (r['Validation Message'] ?? '').toString(),
-          defaultValue: (r['Default Value'] ?? '').toString()
-        } as FieldConfigDto;
-      });
-
-      const section: SectionDto = {
-        id: sectionId,
-        clientId: this.clientId,
-        formId: null, // backend will fill
-        sectionName,  // normalized form_section name
-        displayOrder,
-        fields
-      };
-
-      sections.push(section);
-
-      fields.forEach(f =>
-        this.preview.push({
+          formId: null,
           sectionName,
           displayOrder,
-          ...f
-        })
-      );
-    });
+          fields
+        });
+      });
 
-    this.formData = {
-      id: uuidv4(),
-      clientId: this.clientId,
-      formName,
-      sections
+      const parsedForm: FormDto = {
+        id: uuidv4(),
+        clientId: this.clientId,
+        formName,
+        sections
+      };
+
+      this.parsedForms.push(parsedForm);
+
+      // Show last parsed form in UI (keeps existing UI behavior)
+      this.formData = parsedForm;
     };
-  };
 
-  reader.readAsArrayBuffer(file);
-}
+    reader.readAsArrayBuffer(file);
+  }
 
-  importToApi() {
-    if (!this.formData) {
-      alert('No form data found.');
+
+  async importToApi() {
+    if (!this.parsedForms.length) {
+      alert('No forms to import.');
       return;
     }
 
-    const payload: ImportFieldsRequest = {
-      clientId: this.clientId,
-      formName: this.formData.formName,
-      sections: this.formData.sections
-    };
-    console.log(payload);
     this.uploading = true;
-    this.api.importForm(payload).subscribe({
-      next: (res) => {
-        this.uploading = false;
-        if (res.success) {
-          this.formData = res.data;
-          alert('Form imported successfully');
-        } else {
-          alert('Import failed: ' + res.message);
+
+    for (const form of this.parsedForms) {
+      const payload: ImportFieldsRequest = {
+        clientId: this.clientId,
+        formName: form.formName,
+        sections: form.sections
+      };
+
+      try {
+        const res = await this.api.importForm(payload).toPromise();
+        if (!res?.success) {
+          console.error('Import failed for', form.formName, res?.message);
         }
-      },
-      error: (err) => {
-        this.uploading = false;
-        alert('Import failed');
-        console.error(err);
+        else {
+          console.log('Import successful for', form.formName);
+        }
+      } catch (err) {
+        console.error('Import error for', form.formName, err);
       }
-    });
+    }
+
+    this.uploading = false;
+    alert('All files imported');
   }
 
 
@@ -231,7 +220,7 @@ onFileChange(ev: Event) {
 // Simple UUID v4 generator
 function uuidv4(): string {
   // Generates a random UUID (RFC4122 version 4 compliant)
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });

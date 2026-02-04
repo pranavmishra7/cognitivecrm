@@ -1,0 +1,200 @@
+{
+  "Materials Management": {
+    "Forms": [
+      "Supplier Master",
+      "Item Master",
+      "Purchase Requisition",
+      "PR Approval Workflow",
+      "RFQ Creation & Clubbing",
+      "Quotation Capture",
+      "Comparative Statement",
+      "Purchase Order",
+      "PO Amendments",
+      "Blanket Orders",
+      "Import Purchase Orders",
+      "Import Shipment Tracking",
+      "Goods Inward (Gate Entry)",
+      "Challan Entry",
+      "Material Inspection Entry",
+      "MRIR",
+      "Subcontract Issue",
+      "Subcontract Receipt",
+      "Scrap Salvage Entry",
+      "Rejection Handling",
+      "Store Issue Receipt",
+      "Stock Transfer",
+      "Cycle Counting",
+      "Physical Stock Entry",
+      "Inventory Adjustment",
+      "MRP Parameter Setup",
+      "MRP Run Screen",
+      "Schedule Authorization",
+      "Vendor Schedule Release"
+    ],
+    "Reports": [
+      "Purchase Register",
+      "Vendor Rating",
+      "Pending PR / PO",
+      "Import Status",
+      "Landed Cost",
+      "Stock Ledger",
+      "Inventory Valuation"
+    ]
+  },
+
+  "Sales & Distribution": {
+    "Forms": [
+      "Customer Master",
+      "Inquiry Entry",
+      "Inquiry Follow-up",
+      "Quotation Entry",
+      "Sales Order",
+      "Order Amendment",
+      "Dispatch Planning",
+      "Invoice Generation",
+      "Excise GST Item Setup",
+      "Scheme Discount Definition",
+      "Sales Booking",
+      "Replacement Market Orders",
+      "Customer Visit List",
+      "Tour Program",
+      "Daily Call Report",
+      "Field Expense Claim",
+      "Expense Approval"
+    ],
+    "Reports": [
+      "Sales Register",
+      "Pending Orders",
+      "Lost Sales",
+      "Discount Analysis",
+      "Customer Aging"
+    ]
+  },
+
+  "Production & PPC": {
+    "Forms": [
+      "MPS Setup",
+      "MPS Entry",
+      "Forecast Entry",
+      "Work Order Auto Generation",
+      "Manual Work Orders",
+      "Make-up Work Orders",
+      "Kit Generation",
+      "SRS Creation",
+      "Material Issue to WIP",
+      "Production Entry (Shift-wise)",
+      "Rework Entry",
+      "Scrap Declaration",
+      "Job Completion",
+      "Route Sheet Printing",
+      "Capacity Calendar",
+      "CRP Load Calculation",
+      "Breakdown Entry",
+      "Production Loss Entry"
+    ],
+    "Reports": [
+      "Production Plan vs Actual",
+      "Work Order Status",
+      "Machine Utilization",
+      "WIP Stock"
+    ]
+  },
+
+  "Engineering & Quality": {
+    "Forms": [
+      "BOM Master",
+      "BOM Freeze Unfreeze",
+      "Alternate Item Definition",
+      "Route Sheet Master",
+      "Work Center Master",
+      "Machine Capacity",
+      "Tool Master",
+      "Quality Plan Definition",
+      "Incoming Inspection",
+      "In-Process Inspection",
+      "Final Inspection",
+      "Deviation Approval",
+      "RTV Scrap Tag Generation",
+      "Inspection Alerts"
+    ],
+    "Reports": [
+      "Quality Rejection Trends",
+      "Vendor Quality Rating"
+    ]
+  },
+
+  "Finance": {
+    "Forms": [
+      "Chart of Accounts",
+      "Customer Account Mapping",
+      "Supplier Account Mapping",
+      "AR Invoice",
+      "Receipt Entry",
+      "Bill Adjustment",
+      "Debit Credit Notes",
+      "AP Bill Passing",
+      "Payment Advice",
+      "Bank Voucher",
+      "Journal Voucher",
+      "Cost Center Allocation",
+      "TDS Setup",
+      "TDS Booking",
+      "Budget Definition",
+      "Budget Allocation",
+      "Fixed Asset Master",
+      "Asset Capitalization",
+      "Depreciation Run",
+      "Bank Reconciliation"
+    ],
+    "Reports": [
+      "P&L",
+      "Balance Sheet",
+      "Trial Balance",
+      "Customer Aging",
+      "Vendor Aging"
+    ]
+  },
+
+  "HR & Payroll": {
+    "Forms": [
+      "Employee Master",
+      "Qualification Details",
+      "Family Nominee Details",
+      "Transfer History",
+      "Training Need Identification",
+      "Training Program Entry",
+      "Attendance Entry",
+      "Leave Accounting",
+      "Payroll Setup",
+      "Salary Processing",
+      "Loan & Advance Entry",
+      "Arrear Processing",
+      "Tax Declaration",
+      "Bonus Processing"
+    ],
+    "Reports": [
+      "Attendance Register",
+      "Salary Register",
+      "Payslips",
+      "ESI PF Reports"
+    ]
+  },
+
+  "Admin & Security": {
+    "Forms": [
+      "User Master",
+      "Role Definition",
+      "Warehouse Access Control",
+      "Parameter Setup",
+      "Financial Year Setup",
+      "Division Setup",
+      "Currency Setup",
+      "Auto Code Generators"
+    ],
+    "Reports": [
+      "User Activity Logs",
+      "Authorization Pending",
+      "Audit Trails"
+    ]
+  }
+}

@@ -2,7 +2,7 @@
   <!-- Import Excel -->
   <div class="border p-4 rounded-lg bg-white shadow">
     <h2 class="text-lg font-semibold mb-3">📂 Import Form from Excel</h2>
-    <input type="file" (change)="onFileChange($event)" accept=".xlsx,.xls" />
+    <input type="file" (change)="onFileChange($event)" accept=".xlsx,.xls" multiple />
     <div *ngIf="uploading" class="text-blue-600 mt-2">Uploading...</div>
     <button (click)="importToApi()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
       [disabled]="!formData || uploading">
@@ -92,64 +92,64 @@
 
             <!-- Edit Row -->
             <ng-template #editRow>
-         
-            <!-- Field Order -->
-            <td class="px-2 py-1 border">
-              <input [(ngModel)]="editTarget.fieldOrder" type="number"
-                class="w-full border rounded px-2 py-1 text-center" />
-            </td>
 
-            <!-- Field Name -->
-            <td class="px-2 py-1 border">
-              <input [(ngModel)]="editTarget.fieldName" placeholder="Field Name"
-                class="w-full border rounded px-2 py-1" />
-            </td>
+              <!-- Field Order -->
+              <td class="px-2 py-1 border">
+                <input [(ngModel)]="editTarget.fieldOrder" type="number"
+                  class="w-full border rounded px-2 py-1 text-center" />
+              </td>
 
-            <!-- Type -->
-            <td class="px-2 py-1 border">
-              <input [(ngModel)]="editTarget.type" placeholder="Type" class="w-full border rounded px-2 py-1" />
-            </td>
+              <!-- Field Name -->
+              <td class="px-2 py-1 border">
+                <input [(ngModel)]="editTarget.fieldName" placeholder="Field Name"
+                  class="w-full border rounded px-2 py-1" />
+              </td>
 
-            <!-- Label -->
-            <td class="px-2 py-1 border">
-              <input [(ngModel)]="editTarget.label" placeholder="Label" class="w-full border rounded px-2 py-1" />
-            </td>
+              <!-- Type -->
+              <td class="px-2 py-1 border">
+                <input [(ngModel)]="editTarget.type" placeholder="Type" class="w-full border rounded px-2 py-1" />
+              </td>
 
-            <!-- Placeholder -->
-            <td class="px-2 py-1 border">
-              <input [(ngModel)]="editTarget.placeholder" placeholder="Placeholder"
-                class="w-full border rounded px-2 py-1" />
-            </td>
+              <!-- Label -->
+              <td class="px-2 py-1 border">
+                <input [(ngModel)]="editTarget.label" placeholder="Label" class="w-full border rounded px-2 py-1" />
+              </td>
 
-            <!-- Required -->
-            <td class="px-2 py-1 border text-center">
-              <input type="checkbox" [(ngModel)]="editTarget.required" />
-            </td>
+              <!-- Placeholder -->
+              <td class="px-2 py-1 border">
+                <input [(ngModel)]="editTarget.placeholder" placeholder="Placeholder"
+                  class="w-full border rounded px-2 py-1" />
+              </td>
 
-            <!-- Options -->
-            <td class="px-2 py-1 border">
-              <input [(ngModel)]="editTarget.options" placeholder="Options (comma-separated)"
-                class="w-full border rounded px-2 py-1" />
-            </td>
+              <!-- Required -->
+              <td class="px-2 py-1 border text-center">
+                <input type="checkbox" [(ngModel)]="editTarget.required" />
+              </td>
 
-            <!-- Validation Message -->
-            <td class="px-2 py-1 border">
-              <input [(ngModel)]="editTarget.validationMessage" placeholder="Validation Message"
-                class="w-full border rounded px-2 py-1" />
-            </td>
+              <!-- Options -->
+              <td class="px-2 py-1 border">
+                <input [(ngModel)]="editTarget.options" placeholder="Options (comma-separated)"
+                  class="w-full border rounded px-2 py-1" />
+              </td>
 
-            <!-- Default Value -->
-            <td class="px-2 py-1 border">
-              <input [(ngModel)]="editTarget.defaultValue" placeholder="Default Value"
-                class="w-full border rounded px-2 py-1" />
-            </td>
+              <!-- Validation Message -->
+              <td class="px-2 py-1 border">
+                <input [(ngModel)]="editTarget.validationMessage" placeholder="Validation Message"
+                  class="w-full border rounded px-2 py-1" />
+              </td>
 
-            <!-- Actions -->
-            <td class="px-2 py-1 border text-center">
-              <button (click)="saveEditField(sec)" class="text-green-600 mr-2">💾</button>
-              <button (click)="cancelEdit()" class="text-gray-600">✖</button>
-            </td>
-          </ng-template>
+              <!-- Default Value -->
+              <td class="px-2 py-1 border">
+                <input [(ngModel)]="editTarget.defaultValue" placeholder="Default Value"
+                  class="w-full border rounded px-2 py-1" />
+              </td>
+
+              <!-- Actions -->
+              <td class="px-2 py-1 border text-center">
+                <button (click)="saveEditField(sec)" class="text-green-600 mr-2">💾</button>
+                <button (click)="cancelEdit()" class="text-gray-600">✖</button>
+              </td>
+            </ng-template>
 
           </tr>
         </tbody>
