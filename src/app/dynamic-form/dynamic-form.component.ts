@@ -384,7 +384,7 @@ export class DynamicFormComponent implements OnInit {
 
     // preview count
     this.importPreviewCount = mapped.values.length;
-    let url = 'https://localhost:7003/api/formDataValues'
+    let url = 'http://localhost:7003/api/formDataValues'
     // send in batches
     const res = await this.templateImportService.postValuesInBatches(mapped.values, 100, `${url}/import`);
     this.importResult = res;

@@ -155,7 +155,7 @@ export class TemplateImportService {
   async postValuesInBatches(
     values: FormDataValue[],
     batchSize = 100,
-    url =  'https://localhost:7003/api/formDataValues/import'
+    url =  'http://localhost:7003/api/formDataValues/import'
   ): Promise<{ posted: number; errors: any[] }> {
     const errs: any[] = [];
     let posted = 0;

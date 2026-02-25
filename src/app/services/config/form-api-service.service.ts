@@ -9,9 +9,9 @@ import {PaginatedResult} from '../../models/PaginatedResult';
 
 @Injectable({ providedIn: 'root' })
 export class FormApiService {
-  private formbase = 'https://localhost:7003/api/forms';
-  private masterbase = 'https://localhost:7003/api/MasterData'
-   private formValuebase = 'https://localhost:7003/api/formDataValues'
+  private formbase = 'http://localhost:7003/api/forms';
+  private masterbase = 'http://localhost:7003/api/MasterData'
+   private formValuebase = 'http://localhost:7003/api/formDataValues'
 
   constructor(private http: HttpClient) { }
 
