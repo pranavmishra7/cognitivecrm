@@ -4,7 +4,8 @@ import { AppComponent } from './app/app.component';
 import { provideHttpClient } from '@angular/common/http';
 import { routes } from './app/app.routes';
 import { provideRouter } from '@angular/router';
-
+import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
+ModuleRegistry.registerModules([AllCommunityModule]);
 bootstrapApplication(AppComponent, {
   providers: [
     provideHttpClient(),

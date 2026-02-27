@@ -1,0 +1,204 @@
+<div class="p-6">
+
+  <!-- Card Container -->
+  <div class="bg-white rounded-lg shadow p-6 space-y-6">
+
+    <!-- Header -->
+    <div>
+      <h2 class="text-2xl font-bold">Workflow Template</h2>
+    </div>
+
+    <!-- Form + Template Name -->
+    <div class="grid grid-cols-2 gap-6">
+
+      <div class="flex flex-col space-y-1">
+        <label class="font-medium">Form</label>
+        <select [(ngModel)]="selectedFormId"
+                class="border rounded px-3 py-2 focus:ring focus:ring-blue-200">
+          <option value="" disabled>Select Form</option>
+          <option *ngFor="let f of forms" [value]="f.id">
+            {{ f.formName }}
+          </option>
+        </select>
+      </div>
+
+      <div class="flex flex-col space-y-1">
+        <label class="font-medium">Template Name</label>
+        <input [(ngModel)]="name"
+               class="border rounded px-3 py-2 focus:ring focus:ring-blue-200"
+               placeholder="Enter Template Name"/>
+      </div>
+
+    </div>
+
+    <!-- States & Transitions Section -->
+    <div class="grid grid-cols-2 gap-6">
+
+      <!-- STATES -->
+      <div class="bg-gray-50 rounded-lg p-4 shadow-sm">
+
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">States</h3>
+          <button type="button"
+                  (click)="addState()"
+                  class="bg-blue-600 text-white px-3 py-1 rounded shadow">
+            Add
+          </button>
+        </div>
+
+        <div *ngFor="let s of states; let i = index"
+             class="bg-white rounded border p-4 mb-3 shadow-sm">
+
+          <div class="flex flex-col space-y-3">
+
+            <input [(ngModel)]="s.name"
+                   placeholder="State Name"
+                   class="border rounded px-3 py-2 focus:ring focus:ring-blue-200"/>
+
+            <div class="flex items-center space-x-6 text-sm">
+
+              <!-- START SWITCH -->
+              <div class="flex items-center space-x-2 cursor-pointer select-none"
+                   (click)="setStartState(s)">
+
+                <div class="relative w-12 h-6 rounded-full transition-colors duration-300"
+                     [ngClass]="{
+                       'bg-green-500': s.isStart,
+                       'bg-gray-300': !s.isStart
+                     }">
+
+                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300"
+                       [ngClass]="{
+                         'translate-x-6': s.isStart,
+                         'translate-x-0': !s.isStart
+                       }">
+                  </div>
+                </div>
+
+                <span>Start</span>
+              </div>
+
+              <!-- END SWITCH -->
+              <div class="flex items-center space-x-2 cursor-pointer select-none"
+                   (click)="s.isEnd = !s.isEnd">
+
+                <div class="relative w-12 h-6 rounded-full transition-colors duration-300"
+                     [ngClass]="{
+                       'bg-green-500': s.isEnd,
+                       'bg-gray-300': !s.isEnd
+                     }">
+
+                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300"
+                       [ngClass]="{
+                         'translate-x-6': s.isEnd,
+                         'translate-x-0': !s.isEnd
+                       }">
+                  </div>
+                </div>
+
+                <span>End</span>
+              </div>
+
+              <!-- EDITABLE SWITCH -->
+              <div class="flex items-center space-x-2 cursor-pointer select-none"
+                   (click)="s.allowEdit = !s.allowEdit">
+
+                <div class="relative w-12 h-6 rounded-full transition-colors duration-300"
+                     [ngClass]="{
+                       'bg-green-500': s.allowEdit,
+                       'bg-gray-300': !s.allowEdit
+                     }">
+
+                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300"
+                       [ngClass]="{
+                         'translate-x-6': s.allowEdit,
+                         'translate-x-0': !s.allowEdit
+                       }">
+                  </div>
+                </div>
+
+                <span>Editable</span>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TRANSITIONS -->
+      <div class="bg-gray-50 rounded-lg p-4 shadow-sm">
+
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Transitions</h3>
+          <button type="button"
+                  (click)="addTransition()"
+                  class="bg-blue-600 text-white px-3 py-1 rounded shadow">
+            Add
+          </button>
+        </div>
+
+        <div *ngFor="let t of transitions"
+             class="bg-white rounded border p-4 mb-3 shadow-sm space-y-3">
+
+          <select [(ngModel)]="t.fromStateId"
+                  class="border rounded px-3 py-2 w-full focus:ring focus:ring-blue-200">
+            <option value="" disabled>From State</option>
+            <option *ngFor="let s of states" [value]="s.id">
+              {{ s.name }}
+            </option>
+          </select>
+
+          <select [(ngModel)]="t.toStateId"
+                  class="border rounded px-3 py-2 w-full focus:ring focus:ring-blue-200">
+            <option value="" disabled>To State</option>
+            <option *ngFor="let s of states" [value]="s.id">
+              {{ s.name }}
+            </option>
+          </select>
+
+          <input [(ngModel)]="t.actionName"
+                 placeholder="Action Name"
+                 class="border rounded px-3 py-2 w-full focus:ring focus:ring-blue-200"/>
+
+          <!-- REQUIRES APPROVAL SWITCH -->
+          <div class="flex items-center space-x-2 cursor-pointer select-none"
+               (click)="t.requiresApproval = !t.requiresApproval">
+
+            <div class="relative w-12 h-6 rounded-full transition-colors duration-300"
+                 [ngClass]="{
+                   'bg-green-500': t.requiresApproval,
+                   'bg-gray-300': !t.requiresApproval
+                 }">
+
+              <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300"
+                   [ngClass]="{
+                     'translate-x-6': t.requiresApproval,
+                     'translate-x-0': !t.requiresApproval
+                   }">
+              </div>
+            </div>
+
+            <span class="text-sm">Requires Approval</span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Sticky Footer -->
+  <div class="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t p-4 flex justify-end space-x-4">
+    <button type="button"
+            (click)="save()"
+            class="bg-blue-600 text-white px-4 py-2 rounded shadow">
+      Save Template
+    </button>
+  </div>
+
+</div>

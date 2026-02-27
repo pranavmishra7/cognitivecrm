@@ -59,7 +59,7 @@ export class HeaderComponent implements OnInit {
   settingsExpanded = false;
 
   buildMenu(apiForms: any[], groupingConfig: any) {
-    debugger;
+    
     const formNames = apiForms.map(f => f.formName);
 
     const result: any[] = [];

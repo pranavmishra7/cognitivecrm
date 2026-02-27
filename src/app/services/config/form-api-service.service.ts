@@ -6,6 +6,7 @@ import { PostalCode } from '../../models/PostalCode';
 import { FormDataValue } from '../../models/FormDataValue';
 import { FormDataValueReadResponseDto } from '../../models/FormDataValueReadResponseDto ';
 import {PaginatedResult} from '../../models/PaginatedResult';
+import { TransactionGridDto } from '../../models/TransactionGridDto';
 
 @Injectable({ providedIn: 'root' })
 export class FormApiService {
@@ -16,7 +17,7 @@ export class FormApiService {
   constructor(private http: HttpClient) { }
 
   importForm(payload: ImportFieldsRequest): Observable<ImfResponse<FormDto>> {
-    debugger;
+    
     return this.http.post<ImfResponse<FormDto>>(`${this.formbase}/import`, payload);
   }
 
@@ -47,7 +48,7 @@ export class FormApiService {
     page: number = 1,
     pageSize: number = 25,
     ascending: boolean = true
-  ): Observable<PaginatedResult<FormDataValueReadResponseDto>> {
+  ): Observable<PaginatedResult<TransactionGridDto>> {
     const url = `${this.formValuebase}/${encodeURIComponent(formId)}`;
 
     let params = new HttpParams()
@@ -59,7 +60,7 @@ export class FormApiService {
       params = params.set('clientId', clientId);
     }
 
-    return this.http.get<PaginatedResult<FormDataValueReadResponseDto>>(url, { params })
+    return this.http.get<PaginatedResult<TransactionGridDto>>(url, { params })
       .pipe(
         catchError(err => {
           // optionally handle some errors here or rethrow

@@ -90,9 +90,10 @@
       </div>
 
       <div *ngIf="settingsExpanded" class="ml-4 mt-2 flex flex-col space-y-1">
-        <a routerLink="/product" (click)="menuOpen = false" class="hover:underline">
-          Product
-        </a>
+        <div routerLink="/workflow" routerLinkActive="bg-gray-200 font-semibold"
+          class="cursor-pointer px-3 py-2 rounded hover:bg-gray-100">
+          Workflow Management
+        </div>
       </div>
     </div>
 

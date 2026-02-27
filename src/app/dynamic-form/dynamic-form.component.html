@@ -30,35 +30,15 @@
 
       <div *ngIf="isLoading" class="text-center py-6">Loading...</div>
 
-      <table *ngIf="!isLoading && items.length" class="min-w-full text-left border-collapse">
-        <thead>
-          <tr class="bg-gray-100">
-            <th class="p-2 border" hidden>Id</th>
-            <th class="p-2 border" hidden>TransactionId</th>
-            <th class="p-2 border" hidden>ClientId</th>
-            <th class="p-2 border" hidden>Form</th>
-            <th class="p-2 border">Section</th>
-            <th class="p-2 border">Field</th>
-            <th class="p-2 border">Value</th>
-            <th class="p-2 border">Active</th>
-            <th class="p-2 border">CreatedAt</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let it of items" class="hover:bg-gray-50">
-            <td class="p-2 border break-all" hidden>{{ it.id }}</td>
-            <td class="p-2 border" hidden>{{ it.transactionId }}</td>
-            <td class="p-2 border" hidden>{{ it.clientId }}</td>
-            <td class="p-2 border" hidden>{{ it.formName }}</td>
-            <td class="p-2 border">{{ it.sectionName | sectionName:formConfig?.formName }}</td>
-            <td class="p-2 border">{{ it.fieldName }}</td>
-            <td class="p-2 border break-all">{{ it.dataValue }}</td>
-            <td class="p-2 border">{{ it.active ? 'Yes' : 'No' }}</td>
-            <td class="p-2 border">{{ it.createdAt | date: 'short' }}</td>
-          </tr>
-        </tbody>
-      </table>
-
+      <ag-grid-angular class="ag-theme-alpine" style="width: 100%; height: 600px;" [rowData]="rowData"
+        [columnDefs]="columnDefs" [pagination]="true" [paginationPageSize]="pageSize" [rowSelection]="'multiple'"
+        [defaultColDef]="{
+                          filter: true,
+                          sortable: true,
+                          resizable: true
+                          }">
+      </ag-grid-angular>
+      
       <div *ngIf="!isLoading && (!items || items.length === 0)" class="text-center py-6 text-gray-600">
         No records found.
       </div>
