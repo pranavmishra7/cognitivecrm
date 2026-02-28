@@ -1,0 +1,29 @@
+[
+  {
+    "itemCode": "1R14020001-000R00",
+    "description": "AL FOIL LAMINATED WIDTH 450MM",
+    "type": "DIRECT-RAW MATERIAL",
+    "baseMaterial": "ALUMINIUM",
+    "subCategory": "AL FOIL LAMINATED",
+    "broadPurchaseCategory": "RAW MATERIAL - METAL",
+    "length": null,
+    "width": 450,
+    "thickness": 0.045,
+    "finish": "MATTE",
+    "colour": "SILVER",
+    "itemSites": [
+      {
+        "siteCode": "01 REC STR",
+        "workCenter": "WC-RAW-01",
+        "isActive": true,
+        "isDefaultStore": false
+      },
+      {
+        "siteCode": "01 MAIN STR",
+        "workCenter": "WC-MAIN-01",
+        "isActive": true,
+        "isDefaultStore": true
+      }
+    ]
+  }
+]

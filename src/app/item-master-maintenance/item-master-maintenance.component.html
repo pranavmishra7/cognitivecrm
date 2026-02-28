@@ -1,0 +1,142 @@
+<div class="p-6">
+
+  <!-- Tabs -->
+  <div class="flex items-center space-x-4 mb-4">
+    <button (click)="selectTab('list')"
+      [ngClass]="{ 'border-b-2 border-blue-600 text-blue-600': activeTab === 'list' }"
+      class="px-4 py-2 font-medium">List</button>
+
+    <button (click)="selectTab('create')"
+      [ngClass]="{ 'border-b-2 border-blue-600 text-blue-600': activeTab === 'create' }"
+      class="px-4 py-2 font-medium">Create</button>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-4">
+
+    <!-- LIST TAB -->
+    <div *ngIf="activeTab === 'list'">
+      <div class="flex justify-between items-center mb-4">
+        <input type="text" placeholder="Search..."
+          [(ngModel)]="listFilter"
+          (ngModelChange)="applyFilter()"
+          class="border rounded px-3 py-1" />
+        <button (click)="reload()" class="bg-blue-600 text-white px-3 py-1 rounded">
+          Reload
+        </button>
+      </div>
+
+      <ag-grid-angular class="ag-theme-alpine"
+        style="width: 100%; height: 500px;"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        (rowClicked)="onRowClicked($event)">
+      </ag-grid-angular>
+    </div>
+
+    <!-- CREATE TAB -->
+    <div *ngIf="activeTab === 'create'">
+
+      <h2 class="text-2xl font-bold mb-4">Item Master Maintenance</h2>
+
+      <!-- Bulk Buttons -->
+      <div class="flex justify-between bg-white shadow border p-4 mb-6">
+        <button (click)="downloadTemplate()"
+          class="bg-yellow-500 text-white px-4 py-2 rounded shadow">
+          Download Bulk Import Template
+        </button>
+
+        <div>
+          <input type="file" hidden #csvInput
+            (change)="onCsvImport($event)" />
+          <button (click)="csvInput.click()"
+            class="bg-blue-600 text-white px-4 py-2 rounded shadow">
+            Import CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- FORM -->
+      <form [formGroup]="form" class="grid grid-cols-2 gap-4">
+
+        <input formControlName="itemCode" placeholder="Item Code" class="border rounded px-3 py-2"/>
+        <input formControlName="description" placeholder="Description" class="border rounded px-3 py-2"/>
+        <input formControlName="type" placeholder="Type" class="border rounded px-3 py-2"/>
+        <input formControlName="baseMaterial" placeholder="Base Material" class="border rounded px-3 py-2"/>
+        <input formControlName="subCategory" placeholder="Sub Category" class="border rounded px-3 py-2"/>
+        <input formControlName="broadPurchaseCategory" placeholder="Broad Purchase Category" class="border rounded px-3 py-2"/>
+
+        <input formControlName="length" placeholder="Length" class="border rounded px-3 py-2"/>
+        <input formControlName="width" placeholder="Width" class="border rounded px-3 py-2"/>
+        <input formControlName="thickness" placeholder="Thickness" class="border rounded px-3 py-2"/>
+        <input formControlName="finish" placeholder="Finish" class="border rounded px-3 py-2"/>
+        <input formControlName="colour" placeholder="Colour" class="border rounded px-3 py-2"/>
+
+      </form>
+
+      <!-- Item Sites -->
+      <h3 class="text-xl font-semibold mt-6 mb-2">Item Site</h3>
+
+      <form [formGroup]="form">
+
+  <!-- your other form inputs here -->
+
+  <div formArrayName="itemSites">
+
+    <table class="w-full border">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="p-2 border">Site</th>
+          <th class="p-2 border">Work Center</th>
+          <th class="p-2 border">Active</th>
+          <th class="p-2 border">Default</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let site of itemSites.controls; let i = index"
+            [formGroupName]="i">
+
+          <td>
+            <input formControlName="siteCode"
+                   class="border px-2 py-1 w-full"/>
+          </td>
+
+          <td>
+            <input formControlName="workCenter"
+                   class="border px-2 py-1 w-full"/>
+          </td>
+
+          <td class="text-center">
+            <input type="checkbox"
+                   formControlName="isActive"/>
+          </td>
+
+          <td class="text-center">
+            <input type="checkbox"
+                   formControlName="isDefaultStore"/>
+          </td>
+
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+</form>
+
+      <button (click)="addSite()"
+        class="mt-2 bg-gray-600 text-white px-3 py-1 rounded">
+        Add Site
+      </button>
+
+      <!-- Footer -->
+      <div class="mt-6 flex justify-end space-x-4">
+        <button (click)="save()"
+          class="bg-blue-600 text-white px-4 py-2 rounded shadow">
+          Save
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

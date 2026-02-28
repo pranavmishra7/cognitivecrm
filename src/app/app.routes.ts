@@ -16,5 +16,6 @@ export const routes: Routes = [
     loadChildren: () =>
     import('./workflow.routes')
       .then(m => m.WORKFLOW_ROUTES)
-  }
+  },
+  {path: 'item-master-maintenance', loadComponent: () => import('./item-master-maintenance/item-master-maintenance.component').then(m => m.ItemMasterMaintenanceComponent)  }
 ];
