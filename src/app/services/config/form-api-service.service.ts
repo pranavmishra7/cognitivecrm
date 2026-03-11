@@ -10,9 +10,9 @@ import { TransactionGridDto } from '../../models/TransactionGridDto';
 
 @Injectable({ providedIn: 'root' })
 export class FormApiService {
-  private formbase = 'http://localhost:7003/api/forms';
-  private masterbase = 'http://localhost:7003/api/MasterData'
-   private formValuebase = 'http://localhost:7003/api/formDataValues'
+  private formbase = 'https://ceimfconnect-production.up.railway.app/api/forms';
+  private masterbase = 'https://ceimfconnect-production.up.railway.app/api/MasterData'
+   private formValuebase = 'https://ceimfconnect-production.up.railway.app/api/formDataValues'
 
   constructor(private http: HttpClient) { }
 

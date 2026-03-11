@@ -6,7 +6,7 @@ import { AuthRequest, AuthResponse, ImfResponse } from '../../models/auth.models
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private baseUrl = 'http://localhost:7003/api/Auth';
+  private baseUrl = 'https://ceimfconnect-production.up.railway.app/api/Auth';
   
   private tokenSubject = new BehaviorSubject<string | null>(null);
   private clientIdSubject = new BehaviorSubject<string | null>(null);

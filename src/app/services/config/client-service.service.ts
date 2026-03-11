@@ -6,7 +6,7 @@ import { ClientDto } from '../../models/clientDto';
 
 @Injectable({ providedIn: 'root' })
 export class ClientService {
-  private base = 'http://localhost:7003/api/Clients'; 
+  private base = 'https://ceimfconnect-production.up.railway.app/api/Clients'; 
 
   constructor(private http: HttpClient) {}
 

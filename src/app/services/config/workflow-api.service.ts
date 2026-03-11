@@ -6,7 +6,7 @@ import { WorkflowTemplateDto } from '../../models/workflow.models';
 @Injectable({ providedIn: 'root' })
 export class WorkflowApiService {
 
-  private baseUrl = 'http://localhost:7003/api/workflow';
+  private baseUrl = 'https://ceimfconnect-production.up.railway.app/api/workflow';
 
   constructor(private http: HttpClient) {}
 
